@@ -1,20 +1,20 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
-// Generate an array of 50+ placeholder poster/business images with generous whitespace
-const makeImg = (i) => `https://picsum.photos/seed/whitespace-${i}/800/1000`;
+// Shared infinite marquee row component used for both Posters and Business Collateral
+const makeImg = (seed, w = 800, h = 1000) => `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
-const MarqueeRow = ({ reverse = false, offset = 0 }) => {
-  const items = useMemo(() => Array.from({ length: 12 }).map((_, i) => makeImg(i + offset)), [offset]);
+const MarqueeRow = ({ reverse = false, seedBase = 'poster', speed = 30 }) => {
+  const items = useMemo(() => Array.from({ length: 10 }).map((_, i) => makeImg(`${seedBase}-${i}`, 800, 1000)), [seedBase]);
   return (
-    <div className="relative flex w-full overflow-hidden py-3">
+    <div className="relative w-full overflow-hidden py-3">
       <motion.div
         className="flex gap-6"
-        animate={{ x: reverse ? [0, -1200] : [0, 1200] }}
-        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+        animate={{ x: reverse ? ['0%', '-50%'] : ['-50%', '0%'] }}
+        transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
       >
         {[...items, ...items].map((src, idx) => (
-          <div key={idx} className="aspect-[3/4] w-48 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div key={idx} className="aspect-[3/4] w-52 shrink-0 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/60">
             <img src={src} alt="Portfolio item" className="h-full w-full object-cover" />
           </div>
         ))}
@@ -23,20 +23,33 @@ const MarqueeRow = ({ reverse = false, offset = 0 }) => {
   );
 };
 
+const SectionBlock = ({ title, description, seed }) => (
+  <div className="mx-auto max-w-6xl px-6 py-12">
+    <div className="mb-6">
+      <h3 className="font-geist text-xl font-semibold text-neutral-100 md:text-2xl">{title}</h3>
+      <p className="mt-2 max-w-2xl text-sm text-neutral-400">{description}</p>
+    </div>
+    <div className="[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+      <MarqueeRow seedBase={`${seed}-a`} />
+      <MarqueeRow reverse seedBase={`${seed}-b`} speed={34} />
+      <MarqueeRow seedBase={`${seed}-c`} speed={28} />
+    </div>
+  </div>
+);
+
 const MarqueeGallery = () => {
   return (
-    <section id="work" className="bg-white py-20">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-10">
-          <h2 className="font-geist text-2xl font-semibold text-neutral-900 md:text-3xl">Posters & Business Collateral</h2>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-600">A calm, looping marquee shows a broad sample without overwhelming the page. Hover any item to pause and inspect.</p>
-        </div>
-      </div>
-      <div className="[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-        <MarqueeRow />
-        <MarqueeRow reverse offset={12} />
-        <MarqueeRow offset={24} />
-      </div>
+    <section id="work" className="bg-black py-20">
+      <SectionBlock
+        title="Posters"
+        description="Large-format explorations with strong type and composition, designed for impact."
+        seed="poster"
+      />
+      <SectionBlock
+        title="Business Collateral"
+        description="Stationery, profiles, and templates. Consistent, modern, unmistakably on-brand."
+        seed="biz"
+      />
     </section>
   );
 };
